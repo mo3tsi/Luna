@@ -85,7 +85,7 @@ export default function Settings() {
         <button
           onClick={save}
           disabled={saving}
-          className="mt-4 rounded-lg bg-plum-900 text-cream-50 px-4 py-2 font-medium hover:bg-plum-800 disabled:opacity-50"
+          className="mt-4 rounded-lg bg-blue-600 text-cream-50 px-4 py-2 font-medium hover:bg-blue-500 disabled:opacity-50"
         >
           Save
         </button>
@@ -100,13 +100,13 @@ export default function Settings() {
         <div className="flex gap-3">
           <button
             onClick={exportData}
-            className="rounded-lg border border-plum-900 text-plum-900 px-4 py-2 font-medium hover:bg-plum-900 hover:text-cream-50"
+            className="rounded-lg border border-blue-600 text-blue-600 px-4 py-2 font-medium hover:bg-blue-600 hover:text-cream-50"
           >
             Export my data
           </button>
           <button
             onClick={deleteAllData}
-            className="rounded-lg border border-rose-600 text-rose-600 px-4 py-2 font-medium hover:bg-rose-600 hover:text-cream-50"
+            className="rounded-lg border border-red-600 text-red-600 px-4 py-2 font-medium hover:bg-red-600 hover:text-cream-50"
           >
             Delete all my data
           </button>

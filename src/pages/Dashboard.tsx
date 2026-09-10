@@ -50,7 +50,7 @@ export default function Dashboard() {
         <p className="text-plum-700 mb-6">Log your most recent period to start seeing predictions.</p>
         <a
           href="/log"
-          className="inline-block rounded-full bg-plum-900 text-cream-50 px-6 py-2.5 font-medium hover:bg-plum-800"
+          className="inline-block rounded-full bg-blue-600 text-cream-50 px-6 py-2.5 font-medium hover:bg-blue-500"
         >
           Log a period
         </a>
@@ -91,7 +91,7 @@ export default function Dashboard() {
 
       <a
         href="/log"
-        className="block text-center rounded-full border border-plum-900 text-plum-900 py-2.5 font-medium hover:bg-plum-900 hover:text-cream-50 transition-colors"
+        className="block text-center rounded-full border border-blue-600 text-blue-600 py-2.5 font-medium hover:bg-blue-600 hover:text-cream-50 transition-colors"
       >
         Log today
       </a>

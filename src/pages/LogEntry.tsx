@@ -72,7 +72,7 @@ export default function LogEntry() {
           </div>
           <button
             disabled={savingPeriod}
-            className="rounded-lg bg-rose-500 text-cream-50 px-4 py-2 font-medium hover:bg-rose-600 disabled:opacity-50"
+            className="rounded-lg bg-blue-600 text-cream-50 px-4 py-2 font-medium hover:bg-blue-500 disabled:opacity-50"
           >
             Save
           </button>
@@ -150,7 +150,7 @@ export default function LogEntry() {
 
           <button
             disabled={savingLog}
-            className="rounded-lg bg-plum-900 text-cream-50 px-4 py-2 font-medium hover:bg-plum-800 disabled:opacity-50"
+            className="rounded-lg bg-blue-600 text-cream-50 px-4 py-2 font-medium hover:bg-blue-500 disabled:opacity-50"
           >
             Save today's log
           </button>

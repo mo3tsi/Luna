@@ -84,7 +84,7 @@ export default function Partner() {
         </p>
         <button
           onClick={createInvite}
-          className="rounded-lg bg-plum-900 text-cream-50 px-4 py-2 font-medium hover:bg-plum-800"
+          className="rounded-lg bg-blue-600 text-cream-50 px-4 py-2 font-medium hover:bg-blue-500"
         >
           Generate invite code
         </button>
@@ -110,7 +110,7 @@ export default function Partner() {
                 </span>
               </div>
               {link.status !== 'revoked' && (
-                <button onClick={() => revoke(link.id)} className="text-sm text-rose-600 hover:underline">
+                <button onClick={() => revoke(link.id)} className="text-sm text-red-600 hover:underline">
                   Revoke
                 </button>
               )}
@@ -128,7 +128,7 @@ export default function Partner() {
             placeholder="ABC123"
             className="rounded-lg border border-plum-200 bg-white px-3 py-2 font-mono tracking-widest uppercase"
           />
-          <button onClick={redeem} className="rounded-lg bg-rose-500 text-cream-50 px-4 py-2 font-medium hover:bg-rose-600">
+          <button onClick={redeem} className="rounded-lg bg-blue-600 text-cream-50 px-4 py-2 font-medium hover:bg-blue-500">
             Connect
           </button>
         </div>

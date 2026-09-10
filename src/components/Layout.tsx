@@ -16,7 +16,7 @@ export default function Layout() {
       <header className="border-b border-plum-100 bg-cream-50/90 backdrop-blur sticky top-0 z-10">
         <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
           <span className="font-display text-2xl text-plum-900">Luna</span>
-          <button onClick={() => signOut()} className="text-sm text-plum-700 hover:text-rose-600">
+          <button onClick={() => signOut()} className="text-sm text-blue-600 hover:text-blue-500">
             Sign out
           </button>
         </div>
@@ -28,7 +28,7 @@ export default function Layout() {
               end={item.end}
               className={({ isActive }) =>
                 `px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                  isActive ? 'bg-plum-900 text-cream-50' : 'text-plum-700 hover:bg-plum-100'
+                  isActive ? 'bg-blue-600 text-cream-50' : 'text-plum-700 hover:bg-blue-100 hover:text-blue-600'
                 }`
               }
             >

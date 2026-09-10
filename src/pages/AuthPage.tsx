@@ -46,7 +46,7 @@ export default function AuthPage() {
             <div>
               <label className="block text-sm font-medium text-plum-800 mb-1">Name</label>
               <input
-                className="w-full rounded-lg border border-plum-200 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-rose-500"
+                className="w-full rounded-lg border border-plum-200 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 placeholder="What should we call you?"
@@ -58,7 +58,7 @@ export default function AuthPage() {
             <input
               type="email"
               required
-              className="w-full rounded-lg border border-plum-200 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-rose-500"
+              className="w-full rounded-lg border border-plum-200 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -69,26 +69,26 @@ export default function AuthPage() {
               type="password"
               required
               minLength={6}
-              className="w-full rounded-lg border border-plum-200 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-rose-500"
+              className="w-full rounded-lg border border-plum-200 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
 
-          {error && <p className="text-sm text-rose-600">{error}</p>}
+          {error && <p className="text-sm text-red-600">{error}</p>}
           {info && <p className="text-sm text-sage-500">{info}</p>}
 
           <button
             type="submit"
             disabled={busy}
-            className="w-full rounded-lg bg-plum-900 text-cream-50 py-2.5 font-medium hover:bg-plum-800 transition-colors disabled:opacity-50"
+            className="w-full rounded-lg bg-blue-600 text-cream-50 py-2.5 font-medium hover:bg-blue-500 transition-colors disabled:opacity-50"
           >
             {mode === 'signUp' ? 'Create account' : 'Sign in'}
           </button>
         </form>
 
         <button
-          className="mt-6 text-sm text-plum-700 underline underline-offset-2"
+          className="mt-6 text-sm text-blue-600 underline underline-offset-2 hover:text-blue-500"
           onClick={() => {
             setMode(mode === 'signUp' ? 'signIn' : 'signUp')
             setError(null)
