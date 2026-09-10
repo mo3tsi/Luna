@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard'
 import LogEntry from './pages/LogEntry'
 import Partner from './pages/Partner'
 import Settings from './pages/Settings'
+import CalendarPage from './pages/CalendarPage'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { session, loading } = useAuth()
@@ -30,6 +31,7 @@ function Routed() {
         <Route path="/log" element={<LogEntry />} />
         <Route path="/partner" element={<Partner />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/calendar" element={<CalendarPage />} />
       </Route>
     </Routes>
   )

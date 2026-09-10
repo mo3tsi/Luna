@@ -73,6 +73,9 @@ create table if not exists public.daily_logs (
   unique (user_id, log_date)
 );
 
+alter table public.daily_logs
+  add column if not exists sexual_activity text;
+
 alter table public.daily_logs enable row level security;
 
 create policy "Users manage their own daily logs"
