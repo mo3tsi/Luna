@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { format } from 'date-fns'
+import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../contexts/AuthContext'
 import { predictCycle, PHASE_LABELS, PHASE_COLORS, type CyclePrediction } from '../utils/cyclePredictions'
@@ -48,12 +49,12 @@ export default function Dashboard() {
       <div className="text-center py-16">
         <p className="font-display text-2xl text-plum-900 mb-2">Welcome, {profile.display_name}</p>
         <p className="text-plum-700 mb-6">Log your most recent period to start seeing predictions.</p>
-        <a
-          href="/log"
+        <Link
+          to="/log"
           className="inline-block rounded-full bg-blue-600 text-cream-50 px-6 py-2.5 font-medium hover:bg-blue-500"
         >
           Log a period
-        </a>
+        </Link>
       </div>
     )
   }
@@ -89,12 +90,12 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <a
-        href="/log"
+      <Link
+        to="/log"
         className="block text-center rounded-full border border-blue-600 text-blue-600 py-2.5 font-medium hover:bg-blue-600 hover:text-cream-50 transition-colors"
       >
         Log today
-      </a>
+      </Link>
     </div>
   )
 }
