@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext'
 const MOODS = ['Happy', 'Calm', 'Tired', 'Irritable', 'Anxious', 'Sad', 'Energetic']
 const SYMPTOMS = ['Cramps', 'Headache', 'Bloating', 'Acne', 'Tender breasts', 'Backache', 'Nausea', 'Cravings']
 const FLOW_OPTIONS = ['spotting', 'light', 'medium', 'heavy'] as const
+const SEXUAL_ACTIVITY_OPTIONS = ['intercourse'] as const
 
 export default function LogEntry() {
   const { user } = useAuth()
@@ -16,6 +17,7 @@ export default function LogEntry() {
   const [periodMsg, setPeriodMsg] = useState<string | null>(null)
 
   const [flow, setFlow] = useState<(typeof FLOW_OPTIONS)[number] | ''>('')
+  const [sexualActivity, setSexualActivity] = useState<(typeof SEXUAL_ACTIVITY_OPTIONS)[number] | ''>('')
   const [mood, setMood] = useState<string[]>([])
   const [symptoms, setSymptoms] = useState<string[]>([])
   const [note, setNote] = useState('')
@@ -46,6 +48,7 @@ export default function LogEntry() {
         user_id: user.id,
         log_date: today,
         flow_intensity: flow || null,
+        sexual_activity: sexualActivity || null,
         mood,
         symptoms,
         note: note || null,
@@ -96,6 +99,24 @@ export default function LogEntry() {
                   }`}
                 >
                   {f}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="text-sm font-medium text-plum-800 mb-2">Sexual activity</p>
+            <div className="flex gap-2 flex-wrap">
+              {SEXUAL_ACTIVITY_OPTIONS.map((activity) => (
+                <button
+                  type="button"
+                  key={activity}
+                  onClick={() => setSexualActivity(activity === sexualActivity ? '' : activity)}
+                  className={`px-3 py-1.5 rounded-full text-sm capitalize border transition-colors ${
+                    sexualActivity === activity ? 'bg-rose-500 text-cream-50 border-rose-500' : 'border-plum-200 text-plum-700'
+                  }`}
+                >
+                  {activity}
                 </button>
               ))}
             </div>
