@@ -153,6 +153,9 @@ export default function CalendarPage() {
             } ${day.isToday ? 'ring-2 ring-blue-500 ring-offset-1' : ''}`}
           >
             {format(day.date, 'd')}
+            {day.log?.sexual_activity && (
+              <span aria-hidden="true" className="absolute right-1 top-1 text-[10px] leading-none text-rose-400">&#9829;</span>
+            )}
             {day.log && <span className="absolute bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-blue-600" />}
           </button>
         ))}
@@ -163,6 +166,7 @@ export default function CalendarPage() {
         <span><i className="mr-1 inline-block h-2.5 w-2.5 rounded-full border border-dashed border-rose-500" />Predicted</span>
         <span><i className="mr-1 inline-block h-2.5 w-2.5 rounded-full bg-sage-500" />Fertile</span>
         <span><i className="mr-1 inline-block h-2.5 w-2.5 rounded-full bg-gold-500" />Ovulation</span>
+        <span><i className="mr-1 inline-block text-rose-400">&#9829;</i>Sexual activity</span>
       </div>
 
       <BottomSheet
