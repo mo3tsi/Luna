@@ -6,7 +6,6 @@ import { useAuth } from '../contexts/AuthContext'
 const MOODS = ['Happy', 'Calm', 'Tired', 'Irritable', 'Anxious', 'Sad', 'Energetic']
 const SYMPTOMS = ['Cramps', 'Headache', 'Bloating', 'Acne', 'Tender breasts', 'Backache', 'Nausea', 'Cravings']
 const FLOW_OPTIONS = ['spotting', 'light', 'medium', 'heavy'] as const
-const SEXUAL_ACTIVITY_OPTIONS = ['intercourse'] as const
 
 export default function LogEntry() {
   const { user } = useAuth()
@@ -17,12 +16,13 @@ export default function LogEntry() {
   const [periodMsg, setPeriodMsg] = useState<string | null>(null)
 
   const [flow, setFlow] = useState<(typeof FLOW_OPTIONS)[number] | ''>('')
-  const [sexualActivity, setSexualActivity] = useState<(typeof SEXUAL_ACTIVITY_OPTIONS)[number] | ''>('')
   const [mood, setMood] = useState<string[]>([])
   const [symptoms, setSymptoms] = useState<string[]>([])
   const [note, setNote] = useState('')
   const [savingLog, setSavingLog] = useState(false)
   const [logMsg, setLogMsg] = useState<string | null>(null)
+  const [savingSexualActivity, setSavingSexualActivity] = useState(false)
+  const [sexualActivityMsg, setSexualActivityMsg] = useState<string | null>(null)
 
   const toggle = (list: string[], setList: (v: string[]) => void, value: string) => {
     setList(list.includes(value) ? list.filter((v) => v !== value) : [...list, value])
@@ -48,7 +48,6 @@ export default function LogEntry() {
         user_id: user.id,
         log_date: today,
         flow_intensity: flow || null,
-        sexual_activity: sexualActivity || null,
         mood,
         symptoms,
         note: note || null,
@@ -57,6 +56,23 @@ export default function LogEntry() {
     )
     setLogMsg(error ? error.message : 'Saved for today.')
     setSavingLog(false)
+  }
+
+  const saveSexualActivity = async (e: FormEvent) => {
+    e.preventDefault()
+    if (!user) return
+    setSavingSexualActivity(true)
+    setSexualActivityMsg(null)
+    const { error } = await supabase.from('daily_logs').upsert(
+      {
+        user_id: user.id,
+        log_date: today,
+        sexual_activity: 'intercourse',
+      },
+      { onConflict: 'user_id,log_date' }
+    )
+    setSexualActivityMsg(error ? error.message : 'Intercourse logged for today.')
+    setSavingSexualActivity(false)
   }
 
   return (
@@ -99,24 +115,6 @@ export default function LogEntry() {
                   }`}
                 >
                   {f}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <p className="text-sm font-medium text-plum-800 mb-2">Sexual activity</p>
-            <div className="flex gap-2 flex-wrap">
-              {SEXUAL_ACTIVITY_OPTIONS.map((activity) => (
-                <button
-                  type="button"
-                  key={activity}
-                  onClick={() => setSexualActivity(activity === sexualActivity ? '' : activity)}
-                  className={`px-3 py-1.5 rounded-full text-sm capitalize border transition-colors ${
-                    sexualActivity === activity ? 'bg-rose-500 text-cream-50 border-rose-500' : 'border-plum-200 text-plum-700'
-                  }`}
-                >
-                  {activity}
                 </button>
               ))}
             </div>
@@ -176,6 +174,20 @@ export default function LogEntry() {
             Save today's log
           </button>
           {logMsg && <p className="text-sm text-plum-700 mt-2">{logMsg}</p>}
+        </form>
+      </section>
+
+      <section>
+        <h2 className="font-display text-2xl text-plum-900 mb-3">Log sexual intercourse</h2>
+        <form onSubmit={saveSexualActivity} className="space-y-3">
+          <p className="text-sm text-plum-700">Record intercourse for today.</p>
+          <button
+            disabled={savingSexualActivity}
+            className="rounded-lg bg-rose-500 text-cream-50 px-4 py-2 font-medium hover:bg-rose-400 disabled:opacity-50"
+          >
+            {savingSexualActivity ? 'Saving...' : 'Log intercourse'}
+          </button>
+          {sexualActivityMsg && <p className="text-sm text-plum-700">{sexualActivityMsg}</p>}
         </form>
       </section>
     </div>
