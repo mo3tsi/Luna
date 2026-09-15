@@ -5,6 +5,7 @@ const navItems = [
   { to: '/', label: 'Today', end: true },
   { to: '/log', label: 'Log' },
   { to: '/calendar', label: 'Calendar' },
+  { to: '/insights', label: 'Insights' },
   { to: '/partner', label: 'Partner' },
   { to: '/settings', label: 'Settings' },
 ]
