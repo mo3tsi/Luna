@@ -6,9 +6,9 @@ const navItems = [
   { to: '/log', label: 'Log' },
   { to: '/calendar', label: 'Calendar' },
   { to: '/insights', label: 'Insights' },
-  { to: '/learn', label: 'Learn' },
   { to: '/partner', label: 'Partner' },
   { to: '/settings', label: 'Settings' },
+  { to: '/learn', label: 'Learn' },
 ]
 
 export default function Layout() {
