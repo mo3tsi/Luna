@@ -23,7 +23,7 @@ export default function BottomSheet({ open, title, onClose, children }: BottomSh
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`absolute bottom-0 left-0 right-0 mx-auto max-h-[80vh] max-w-2xl overflow-y-auto rounded-t-2xl bg-cream-50 p-5 shadow-2xl transition-transform duration-300 ${open ? 'translate-y-0' : 'translate-y-full'}`}
+        className={`absolute bottom-0 left-0 right-0 mx-auto max-h-[80vh] max-w-2xl overflow-y-auto rounded-t-2xl bg-cream-50 p-5 pb-[calc(1.25rem+var(--safe-bottom))] shadow-2xl transition-transform duration-300 ${open ? 'translate-y-0' : 'translate-y-full'}`}
       >
         <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-plum-200" />
         <div className="flex items-center justify-between gap-4">
