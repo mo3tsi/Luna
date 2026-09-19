@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { format } from 'date-fns'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../contexts/AuthContext'
+import BackLink from '../components/BackLink'
 import { predictCycle, PHASE_LABELS, PHASE_COLORS } from '../utils/cyclePredictions'
 
 interface LinkRow {
@@ -75,6 +76,7 @@ export default function Partner() {
 
   return (
     <div className="space-y-10">
+      <BackLink />
       <section>
         <h2 className="font-display text-2xl text-plum-900 mb-2">Share with a partner</h2>
         <p className="text-plum-700 text-sm mb-4">

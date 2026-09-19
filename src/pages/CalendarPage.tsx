@@ -115,7 +115,7 @@ export default function CalendarPage() {
             type="button"
             aria-label="Previous month"
             onClick={() => setMonth((current) => subMonths(current, 1))}
-            className="grid h-9 w-9 place-items-center rounded-full border border-plum-200 text-plum-800 hover:border-blue-500 hover:text-blue-600"
+            className="grid h-11 w-11 place-items-center rounded-full border border-plum-200 text-plum-800 hover:border-blue-500 hover:text-blue-600"
           >
             <span aria-hidden="true">&#8592;</span>
           </button>
@@ -123,7 +123,7 @@ export default function CalendarPage() {
             type="button"
             aria-label="Next month"
             onClick={() => setMonth((current) => addMonths(current, 1))}
-            className="grid h-9 w-9 place-items-center rounded-full border border-plum-200 text-plum-800 hover:border-blue-500 hover:text-blue-600"
+            className="grid h-11 w-11 place-items-center rounded-full border border-plum-200 text-plum-800 hover:border-blue-500 hover:text-blue-600"
           >
             <span aria-hidden="true">&#8594;</span>
           </button>
@@ -148,7 +148,7 @@ export default function CalendarPage() {
             key={day.date.toISOString()}
             type="button"
             onClick={() => setSelectedDay(day)}
-            className={`relative aspect-square rounded-lg p-1 text-sm transition-colors ${
+            className={`relative flex h-11 w-11 items-center justify-center rounded-lg text-sm transition-colors ${
               day.isCurrentMonth ? markerClass(day) : 'text-plum-300'
             } ${day.isToday ? 'ring-2 ring-blue-500 ring-offset-1' : ''}`}
           >

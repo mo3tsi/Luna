@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../contexts/AuthContext'
+import BackLink from '../components/BackLink'
 
 export default function Settings() {
   const { user } = useAuth()
@@ -60,6 +61,7 @@ export default function Settings() {
 
   return (
     <div className="space-y-10">
+      <BackLink />
       <section>
         <h2 className="font-display text-2xl text-plum-900 mb-4">Cycle averages</h2>
         <div className="flex gap-6">
