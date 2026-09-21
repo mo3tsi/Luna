@@ -14,6 +14,7 @@ A private cycle & period tracker, built as a personal, ad-free alternative to ap
 - Partner sharing via one-time invite codes — partner sees only phase + predicted dates, never notes
 - One-click data export (JSON) and one-click permanent data deletion
 - Database-enforced privacy (Postgres Row Level Security) — not just "the app promises not to look"
+- Calendar to make the information more accessible.
 
 ## Tech stack
 | Layer | Choice | Why |
