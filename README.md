@@ -23,7 +23,7 @@ A private cycle & period tracker, built as a personal, ad-free alternative to ap
 | Backend | [Supabase](https://supabase.com) (Postgres + Auth) | Generous free tier, real auth, Row Level Security for genuine per-user data isolation |
 | Hosting | [Vercel](https://vercel.com) (or Netlify) | Free tier, deploys straight from GitHub on every push |
 
-Total monthly cost: **$0**, for personal-scale usage (two users).
+Total monthly cost: **R0**, for personal-scale usage (two users).
 
 ## Getting started
 
