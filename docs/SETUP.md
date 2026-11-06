@@ -19,9 +19,12 @@ None of these require a credit card for this project's scale.
 - [Git](https://git-scm.com/downloads)
 - A code editor — [VS Code](https://code.visualstudio.com) is free and beginner-friendly.
 
+```bash
+git clone https://github.com/mo3tsi/Luna.git
+cd Luna
+npm ci
+```
 
-
-`npm install` downloads all the code libraries the app depends on. This can take a minute or two.
 
 ---
 
@@ -31,7 +34,7 @@ None of these require a credit card for this project's scale.
 2. Click **New project**. Pick any name (e.g. "luna"), set a database password (save it somewhere safe — a password manager is ideal), and choose the region closest to you.
 3. Wait ~2 minutes for it to finish provisioning.
 4. In the left sidebar, go to **SQL Editor** → **New query**.
-5. Open `supabase/schema.sql` from this project, copy its entire contents, paste into the SQL editor, and click **Run**. This creates all the tables and the privacy rules (Row Level Security policies) described in `docs/PRIVACY.md`.
+5. Open `supabase/schema.sql` from this project, copy its entire contents, paste into the SQL editor, and click **Run**. This creates the tables and privacy rules. If Luna already has a database, run [the partner-sharing migration](../supabase/migrations/202611070001_partner_sharing.sql) instead.
 6. In the left sidebar, go to **Settings → API**. You'll need two values from this page in the next step:
    - **Project URL**
    - **anon / public** key (NOT the `service_role` key — never put that one in the frontend)
@@ -58,38 +61,19 @@ Since only you and your girlfriend will use this, you can disable open signups s
    npm run dev
    ```
 4. Open the URL it prints (usually `http://localhost:5173`) in your browser. You should see the Luna sign-in screen.
-5. Create an account for your girlfriend (or yourself, to test) using the "New here? Create an account" link. Supabase will send a confirmation email — check the inbox of the email address you used.
+5. For local signup testing, allow `http://localhost:5173/auth` in Supabase Auth redirect URLs and use a test account.
 
-`.env` is listed in `.gitignore`, so it will never be uploaded to GitHub — your Supabase keys stay private.
-
----
-
-## 4. Push the code to GitHub
-
-1. Go to [github.com](https://github.com) → sign up if you haven't.
-2. Click **New repository**. Name it `luna`, keep it **Private** (recommended, since this is personal), don't initialize with a README (you already have one).
-3. Back in your terminal, inside the project folder:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit: Luna"
-   git branch -M main
-   git remote add origin https://github.com/<your-username>/luna.git
-   git push -u origin main
-   ```
-4. Refresh your GitHub repo page — your code should now be there. Double-check `.env` is **not** in the file list (it shouldn't be, thanks to `.gitignore`).
+`.env` is ignored by Git. The frontend project URL and publishable/anon key are visible in the deployed bundle. Keep database passwords and privileged keys out of all frontend configuration.
 
 ---
 
-## 5. Deploy so your girlfriend can actually use it
+## 4. Deploy Luna and enable signup
 
-1. Go to [vercel.com](https://vercel.com) → sign up with your GitHub account.
-2. Click **Add New → Project**, then **Import** your `luna` GitHub repo.
-3. Vercel will detect it's a Vite project automatically. Before deploying, add your environment variables (**Environment Variables** section):
-   - `VITE_SUPABASE_URL` = same value as your `.env`
-   - `VITE_SUPABASE_ANON_KEY` = same value as your `.env`
-4. Click **Deploy**. In about a minute, you'll get a live URL like `luna-yourname.vercel.app`.
-5. Share that URL with your girlfriend. She creates her own account there — that's the account that owns her cycle data.
+1. In [Vercel](https://vercel.com), import [mo3tsi/Luna](https://github.com/mo3tsi/Luna) as a Vite project, or open its existing project. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` for the Production environment, then deploy.
+2. In Supabase Auth URL Configuration, set **Site URL** to the production HTTPS origin and add the exact confirmation redirect, such as `https://your-luna-domain.vercel.app/auth`, to **Redirect URLs**.
+3. Keep email confirmation enabled and configure [custom SMTP](https://supabase.com/docs/guides/auth/auth-smtp). Supabase's built-in email service only sends to project team addresses. Your girlfriend can create her own account after email delivery works.
+4. Open the production URL on a phone. With synthetic test data, create a test account, follow its email link, log a period and a note, reload the calendar and reopen the note to confirm they persisted. With a second account, verify that only the shared summary appears after connecting and that it disappears after revocation.
+5. Share the production URL. She can sign up, confirm her email, then tap **Log** to save her first entry. On a phone, use the browser's **Add to Home Screen** option where available.
 
 ### Getting you partner access
 1. She signs in, goes to the **Partner** tab, clicks **Generate invite code**.
@@ -113,4 +97,4 @@ Vercel automatically redeploys within a minute or two of every push to `main`.
 
 - **Blank page / console errors about Supabase URL** — double check `.env` (locally) or the Vercel environment variables (in production) are set correctly, then redeploy/restart.
 - **"Invite code is invalid, already used, or expired"** — codes are single-use; generate a fresh one.
-- **Confirmation email never arrives** — check spam, or in Supabase go to **Authentication → Users** and manually confirm the account while testing.
+- **Confirmation email never arrives** — check spam, custom SMTP configuration, and the Supabase Auth logs. If the link opens the wrong site, check **Site URL** and **Redirect URLs**.

@@ -6,7 +6,8 @@ export default function Layout() {
   return (
     <div className="min-h-screen bg-cream-50 pb-[calc(5.5rem+var(--safe-bottom))]">
       <header className="sticky top-0 z-10 border-b border-plum-100 bg-cream-50/90 backdrop-blur">
-        <div className="mx-auto max-w-2xl px-4 py-4">
+        <div className="mx-auto max-w-2xl px-4 py-4 flex items-center gap-2">
+          <img src="/favicon.svg" width="32" height="32" alt="" />
           <span className="font-display text-3xl text-plum-900">Luna</span>
         </div>
       </header>

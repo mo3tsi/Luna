@@ -14,7 +14,7 @@ A private cycle & period tracker, built as a personal, ad-free alternative to ap
 - Partner sharing via one-time invite codes — partner sees only phase + predicted dates, never notes
 - One-click data export (JSON) and one-click permanent data deletion
 - Database-enforced privacy (Postgres Row Level Security) — not just "the app promises not to look"
-- Calendar to make the information more accessible.
+- Calendar view and a Luna icon for phone home-screen shortcuts.
 
 ## Tech stack
 | Layer | Choice | Why |
@@ -65,7 +65,6 @@ luna/
 - Client-side encryption of notes (so even you, via the Supabase dashboard, can't read them)
 - Push/email reminders before predicted period start
 - Symptom trend charts over multiple cycles
-- PWA support for "install to home screen" on mobile
 
 ## License
 

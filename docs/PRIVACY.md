@@ -19,7 +19,7 @@ Every table in the database has **Row Level Security (RLS)** turned on (see `sup
 - `cycles` and `daily_logs`: a policy allows a row to be read/written **only if** `auth.uid() = user_id`, i.e. only by the person who owns it. There is no code path — even a modified or malicious frontend — that lets someone query another person's `daily_logs` through the public API key.
 - `partner_links`: an owner can always see their own invite/connection rows. A partner can only see a link row after they've been explicitly attached to it (by redeeming an invite code).
 - Partner access is deliberately narrow: partners query a `partner_summary` **view**, which only exposes cycle-length averages and the most recent period start date — enough to compute phase and predictions, but structurally excludes `daily_logs.note` and symptom/mood detail. There's no way for a partner account to reach those columns even by inspecting network requests, because the view never selects them.
-- Invite codes are single-use (`status` flips from `pending` to `accepted` on redemption) and can be revoked at any time by the owner, which immediately cuts off the `partner_summary` row for that link.
+- Invite codes are single-use (`status` flips from `pending` to `accepted` on redemption) and expire after 24 hours if unused and can be revoked at any time by the owner, which immediately cuts off the `partner_summary` row for that link.
 
 ## Honest limits
 

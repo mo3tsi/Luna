@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { format } from 'date-fns'
+import { format, parseISO } from 'date-fns'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../contexts/AuthContext'
 import BackLink from '../components/BackLink'
@@ -21,7 +21,7 @@ interface PartnerSummaryRow {
 }
 
 function randomCode() {
-  return Math.random().toString(36).slice(2, 8).toUpperCase()
+  return crypto.randomUUID().replaceAll('-', '').slice(0, 16).toUpperCase()
 }
 
 export default function Partner() {
@@ -30,14 +30,16 @@ export default function Partner() {
   const [linkedToMe, setLinkedToMe] = useState<PartnerSummaryRow[]>([])
   const [redeemCode, setRedeemCode] = useState('')
   const [redeemMsg, setRedeemMsg] = useState<string | null>(null)
+  const [partnerError, setPartnerError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   const load = async () => {
     if (!user) return
-    const [{ data: links }, { data: summaries }] = await Promise.all([
+    const [{ data: links, error: linksError }, { data: summaries, error: summaryError }] = await Promise.all([
       supabase.from('partner_links').select('id, invite_code, status, partner_id').eq('owner_id', user.id),
       supabase.from('partner_summary').select('*'),
     ])
+    setPartnerError(linksError?.message ?? summaryError?.message ?? null)
     setMyLinks(links ?? [])
     setLinkedToMe((summaries as PartnerSummaryRow[]) ?? [])
     setLoading(false)
@@ -52,12 +54,14 @@ export default function Partner() {
     if (!user) return
     const code = randomCode()
     const { error } = await supabase.from('partner_links').insert({ owner_id: user.id, invite_code: code })
-    if (!error) load()
+    if (error) setPartnerError(error.message)
+    else load()
   }
 
   const revoke = async (id: string) => {
-    await supabase.from('partner_links').update({ status: 'revoked' }).eq('id', id)
-    load()
+    const { error } = await supabase.from('partner_links').update({ status: 'revoked' }).eq('id', id)
+    if (error) setPartnerError(error.message)
+    else load()
   }
 
   const redeem = async () => {
@@ -77,10 +81,11 @@ export default function Partner() {
   return (
     <div className="space-y-10">
       <BackLink />
+      {partnerError && <p role="alert" className="text-sm text-red-600">{partnerError}</p>}
       <section>
         <h2 className="font-display text-2xl text-plum-900 mb-2">Share with a partner</h2>
         <p className="text-plum-700 text-sm mb-4">
-          Generate a one-time code and send it to your partner yourself (text, in person, however you like).
+          Generate a one-time code and share it privately with your partner. The code expires after 24 hours.
           They enter it below to connect. They'll only ever see your cycle phase and predicted dates — never
           your private notes or full symptom log. You can revoke access at any time.
         </p>
@@ -95,10 +100,10 @@ export default function Partner() {
           {myLinks.map((link) => (
             <div
               key={link.id}
-              className="flex items-center justify-between rounded-lg border border-plum-100 px-4 py-2.5"
+              className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-plum-100 px-4 py-2.5"
             >
               <div>
-                <span className="font-mono text-lg tracking-widest text-plum-900">{link.invite_code}</span>
+                <span className="break-all font-mono text-sm tracking-widest text-plum-900">{link.invite_code}</span>
                 <span
                   className={`ml-3 text-xs px-2 py-0.5 rounded-full ${
                     link.status === 'accepted'
@@ -127,10 +132,12 @@ export default function Partner() {
           <input
             value={redeemCode}
             onChange={(e) => setRedeemCode(e.target.value)}
-            placeholder="ABC123"
-            className="rounded-lg border border-plum-200 bg-white px-3 py-2 font-mono tracking-widest uppercase"
+            aria-label="Partner invite code"
+            autoCapitalize="characters"
+            spellCheck={false}
+            className="min-w-0 flex-1 rounded-lg border border-plum-200 bg-white px-3 py-2 font-mono tracking-widest uppercase"
           />
-          <button onClick={redeem} className="rounded-lg bg-blue-600 text-cream-50 px-4 py-2 font-medium hover:bg-blue-500">
+          <button disabled={!redeemCode.trim()} onClick={redeem} className="rounded-lg bg-blue-600 text-cream-50 px-4 py-2 font-medium hover:bg-blue-500">
             Connect
           </button>
         </div>
@@ -151,7 +158,7 @@ export default function Partner() {
                 )
               }
               const prediction = predictCycle(
-                new Date(s.last_period_start),
+                parseISO(s.last_period_start),
                 s.average_cycle_length,
                 s.average_period_length
               )
