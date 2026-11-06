@@ -111,24 +111,34 @@ create policy "Partners can view links they belong to"
   using (auth.uid() = partner_id);
 
 -- ============================================================
--- 5. Function: redeem an invite code
+-- 5. Limited partner access
 -- ============================================================
--- Runs with the privileges of the function owner (security definer) so that a
--- partner, who has no other access to partner_links belonging to someone else,
--- can safely redeem a code without being granted broad table access.
+-- Give the frontend explicit privileges. Row Level Security still restricts
+-- every operation to rows the signed-in user is allowed to access.
+grant select, insert, update on public.profiles to authenticated;
+grant select, insert, update, delete on public.cycles, public.daily_logs, public.partner_links to authenticated;
+
 create or replace function public.redeem_invite(code text)
 returns void
 language plpgsql
 security definer
-set search_path = public
+set search_path = ''
 as $$
+declare
+  caller_id uuid := auth.uid();
 begin
+  if caller_id is null then
+    raise exception 'Sign in to connect to a partner.';
+  end if;
+
   update public.partner_links
-  set partner_id = auth.uid(),
+  set partner_id = caller_id,
       status = 'accepted',
       accepted_at = now()
-  where invite_code = code
-    and status = 'pending';
+  where invite_code = upper(trim(code))
+    and status = 'pending'
+    and owner_id <> caller_id
+    and created_at > now() - interval '24 hours';
 
   if not found then
     raise exception 'Invite code is invalid, already used, or expired.';
@@ -136,40 +146,45 @@ begin
 end;
 $$;
 
--- ============================================================
--- 6. PARTNER SUMMARY VIEW — read-only, limited fields only
--- ============================================================
--- This is what a partner is actually allowed to query. It deliberately excludes
--- daily_logs.note (free-text journal entries) and any symptom detail — a partner
--- only ever sees cycle day, phase, and predicted dates, never her private notes.
-create or replace view public.partner_summary as
-select
-  pl.partner_id,
-  pl.owner_id,
-  p.display_name as owner_display_name,
-  p.average_cycle_length,
-  p.average_period_length,
-  (
-    select c.start_date
-    from public.cycles c
-    where c.user_id = pl.owner_id
-    order by c.start_date desc
-    limit 1
-  ) as last_period_start
-from public.partner_links pl
-join public.profiles p on p.id = pl.owner_id
-where pl.status = 'accepted';
+revoke all on function public.redeem_invite(text) from public, anon;
+grant execute on function public.redeem_invite(text) to authenticated;
 
-alter view public.partner_summary set (security_invoker = on);
+-- A security-invoker view alone cannot join another user's private tables.
+-- This function checks the accepted link before returning the limited fields.
+create or replace function public.get_partner_summary()
+returns table (
+  partner_id uuid,
+  owner_id uuid,
+  owner_display_name text,
+  average_cycle_length int,
+  average_period_length int,
+  last_period_start date
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select distinct pl.partner_id, pl.owner_id, p.display_name,
+    p.average_cycle_length, p.average_period_length,
+    (select max(c.start_date) from public.cycles c where c.user_id = pl.owner_id)
+  from public.partner_links pl
+  join public.profiles p on p.id = pl.owner_id
+  where pl.partner_id = (select auth.uid())
+    and pl.status = 'accepted';
+$$;
 
--- Because security_invoker is on, the view is subject to the RLS policy below,
--- executed as the querying user (the partner) rather than the view owner.
-create policy "Partners can read the summary of people who added them"
-  on public.partner_links for select
-  using (auth.uid() = partner_id);
+revoke all on function public.get_partner_summary() from public, anon;
+grant execute on function public.get_partner_summary() to authenticated;
+
+create or replace view public.partner_summary with (security_invoker = true) as
+select * from public.get_partner_summary();
+
+revoke all on public.partner_summary from public, anon;
+grant select on public.partner_summary to authenticated;
 
 -- ============================================================
--- 7. Auto-create a profile row whenever someone signs up
+-- 6. Auto-create a profile row whenever someone signs up
 -- ============================================================
 create or replace function public.handle_new_user()
 returns trigger

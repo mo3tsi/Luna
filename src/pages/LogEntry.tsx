@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { format } from 'date-fns'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../contexts/AuthContext'
@@ -19,10 +19,38 @@ export default function LogEntry() {
   const [mood, setMood] = useState<string[]>([])
   const [symptoms, setSymptoms] = useState<string[]>([])
   const [note, setNote] = useState('')
+  const [loadingLog, setLoadingLog] = useState(true)
+  const [logLoadError, setLogLoadError] = useState(false)
   const [savingLog, setSavingLog] = useState(false)
   const [logMsg, setLogMsg] = useState<string | null>(null)
   const [savingSexualActivity, setSavingSexualActivity] = useState(false)
   const [sexualActivityMsg, setSexualActivityMsg] = useState<string | null>(null)
+
+  const userId = user?.id
+  useEffect(() => {
+    if (!userId) return
+    let active = true
+    supabase.from('daily_logs')
+      .select('flow_intensity, mood, symptoms, note')
+      .eq('user_id', userId)
+      .eq('log_date', today)
+      .maybeSingle()
+      .then(({ data, error }) => {
+        if (!active) return
+        setLoadingLog(false)
+        setLogLoadError(Boolean(error))
+        if (error) {
+          setLogMsg("Couldn't load today's log. Reload the page before editing it.")
+          return
+        }
+        setFlow(FLOW_OPTIONS.find((option) => option === data?.flow_intensity) ?? '')
+        setMood(data?.mood ?? [])
+        setSymptoms(data?.symptoms ?? [])
+        setNote(data?.note ?? '')
+        setLogMsg(null)
+      })
+    return () => { active = false }
+  }, [userId, today])
 
   const toggle = (list: string[], setList: (v: string[]) => void, value: string) => {
     setList(list.includes(value) ? list.filter((v) => v !== value) : [...list, value])
@@ -40,7 +68,7 @@ export default function LogEntry() {
 
   const saveDailyLog = async (e: FormEvent) => {
     e.preventDefault()
-    if (!user) return
+    if (!user || loadingLog || logLoadError) return
     setSavingLog(true)
     setLogMsg(null)
     const { error } = await supabase.from('daily_logs').upsert(
@@ -81,9 +109,12 @@ export default function LogEntry() {
         <h2 className="font-display text-2xl text-plum-900 mb-3">Start a new period</h2>
         <form onSubmit={savePeriodStart} className="flex gap-3 items-end">
           <div>
-            <label className="block text-sm text-plum-700 mb-1">Start date</label>
+            <label htmlFor="period-start" className="block text-sm text-plum-700 mb-1">Start date</label>
             <input
+              id="period-start"
               type="date"
+              max={today}
+              required
               value={periodStartDate}
               onChange={(e) => setPeriodStartDate(e.target.value)}
               className="rounded-lg border border-plum-200 bg-white px-3 py-2"
@@ -101,79 +132,82 @@ export default function LogEntry() {
 
       <section>
         <h2 className="font-display text-2xl text-plum-900 mb-3">Today — {format(new Date(), 'EEEE, MMM d')}</h2>
-        <form onSubmit={saveDailyLog} className="space-y-5">
-          <div>
-            <p className="text-sm font-medium text-plum-800 mb-2">Flow</p>
-            <div className="flex gap-2 flex-wrap">
-              {FLOW_OPTIONS.map((f) => (
-                <button
-                  type="button"
-                  key={f}
-                  onClick={() => setFlow(f === flow ? '' : f)}
-                  className={`px-3 py-1.5 rounded-full text-sm capitalize border transition-colors ${
-                    flow === f ? 'bg-rose-500 text-cream-50 border-rose-500' : 'border-plum-200 text-plum-700'
-                  }`}
-                >
-                  {f}
-                </button>
-              ))}
+        <form onSubmit={saveDailyLog}>
+          <fieldset disabled={loadingLog || logLoadError || savingLog} className="space-y-5">
+            <div>
+              <p className="text-sm font-medium text-plum-800 mb-2">Flow</p>
+              <div className="flex gap-2 flex-wrap">
+                {FLOW_OPTIONS.map((f) => (
+                  <button
+                    type="button"
+                    key={f}
+                    onClick={() => setFlow(f === flow ? '' : f)}
+                    className={`px-3 py-1.5 rounded-full text-sm capitalize border transition-colors ${
+                      flow === f ? 'bg-rose-500 text-cream-50 border-rose-500' : 'border-plum-200 text-plum-700'
+                    }`}
+                  >
+                    {f}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
 
-          <div>
-            <p className="text-sm font-medium text-plum-800 mb-2">Mood</p>
-            <div className="flex gap-2 flex-wrap">
-              {MOODS.map((m) => (
-                <button
-                  type="button"
-                  key={m}
-                  onClick={() => toggle(mood, setMood, m)}
-                  className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
-                    mood.includes(m) ? 'bg-sage-500 text-cream-50 border-sage-500' : 'border-plum-200 text-plum-700'
-                  }`}
-                >
-                  {m}
-                </button>
-              ))}
+            <div>
+              <p className="text-sm font-medium text-plum-800 mb-2">Mood</p>
+              <div className="flex gap-2 flex-wrap">
+                {MOODS.map((m) => (
+                  <button
+                    type="button"
+                    key={m}
+                    onClick={() => toggle(mood, setMood, m)}
+                    className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                      mood.includes(m) ? 'bg-sage-500 text-cream-50 border-sage-500' : 'border-plum-200 text-plum-700'
+                    }`}
+                  >
+                    {m}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
 
-          <div>
-            <p className="text-sm font-medium text-plum-800 mb-2">Symptoms</p>
-            <div className="flex gap-2 flex-wrap">
-              {SYMPTOMS.map((s) => (
-                <button
-                  type="button"
-                  key={s}
-                  onClick={() => toggle(symptoms, setSymptoms, s)}
-                  className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
-                    symptoms.includes(s) ? 'bg-gold-500 text-plum-900 border-gold-500' : 'border-plum-200 text-plum-700'
-                  }`}
-                >
-                  {s}
-                </button>
-              ))}
+            <div>
+              <p className="text-sm font-medium text-plum-800 mb-2">Symptoms</p>
+              <div className="flex gap-2 flex-wrap">
+                {SYMPTOMS.map((s) => (
+                  <button
+                    type="button"
+                    key={s}
+                    onClick={() => toggle(symptoms, setSymptoms, s)}
+                    className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                      symptoms.includes(s) ? 'bg-gold-500 text-plum-900 border-gold-500' : 'border-plum-200 text-plum-700'
+                    }`}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
 
-          <div>
-            <label className="block text-sm font-medium text-plum-800 mb-2">Private note</label>
-            <textarea
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              rows={3}
-              placeholder="Only you can ever see this — not even a linked partner."
-              className="w-full rounded-lg border border-plum-200 bg-white px-3 py-2"
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-plum-800 mb-2">Private note</label>
+              <textarea
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                rows={3}
+                placeholder="Private to your account. Your partner can’t see this."
+                className="w-full rounded-lg border border-plum-200 bg-white px-3 py-2"
+              />
+            </div>
 
-          <button
-            disabled={savingLog}
-            className="rounded-lg bg-blue-600 text-cream-50 px-4 py-2 font-medium hover:bg-blue-500 disabled:opacity-50"
-          >
-            Save today's log
-          </button>
-          {logMsg && <p className="text-sm text-plum-700 mt-2">{logMsg}</p>}
+            <button
+              disabled={savingLog}
+              className="rounded-lg bg-blue-600 text-cream-50 px-4 py-2 font-medium hover:bg-blue-500 disabled:opacity-50"
+            >
+              Save today's log
+            </button>
+          </fieldset>
+          {loadingLog && <p role="status" className="text-sm text-plum-700 mt-2">Loading today’s log…</p>}
+          {logMsg && <p role={logLoadError ? "alert" : "status"} className="text-sm text-plum-700 mt-2">{logMsg}</p>}
         </form>
       </section>
 

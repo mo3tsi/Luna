@@ -18,14 +18,17 @@ export default function AuthPage() {
     try {
       if (mode === 'signUp') {
         const { error } = await supabase.auth.signUp({
-          email,
+          email: email.trim(),
           password,
-          options: { data: { display_name: displayName || 'Luna user' } },
+          options: {
+            data: { display_name: displayName.trim() || 'Luna user' },
+            emailRedirectTo: window.location.origin + '/auth',
+          },
         })
         if (error) throw error
         setInfo('Account created. Check your email to confirm, then sign in.')
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password })
+        const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
         if (error) throw error
       }
     } catch (err) {
@@ -38,14 +41,17 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-cream-50 px-4">
       <div className="w-full max-w-sm">
+        <img src="/favicon.svg" width="56" height="56" alt="" className="mb-4" />
         <h1 className="font-display text-4xl text-plum-900 mb-1">Luna</h1>
         <p className="text-plum-700 mb-8">Private cycle tracking, just for you.</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === 'signUp' && (
             <div>
-              <label className="block text-sm font-medium text-plum-800 mb-1">Name</label>
+              <label htmlFor="auth-name" className="block text-sm font-medium text-plum-800 mb-1">Name</label>
               <input
+                id="auth-name"
+                autoComplete="name"
                 className="w-full rounded-lg border border-plum-200 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
@@ -54,8 +60,10 @@ export default function AuthPage() {
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-plum-800 mb-1">Email</label>
+            <label htmlFor="auth-email" className="block text-sm font-medium text-plum-800 mb-1">Email</label>
             <input
+              id="auth-email"
+              autoComplete="email"
               type="email"
               required
               className="w-full rounded-lg border border-plum-200 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
@@ -64,31 +72,34 @@ export default function AuthPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-plum-800 mb-1">Password</label>
+            <label htmlFor="auth-password" className="block text-sm font-medium text-plum-800 mb-1">Password</label>
             <input
+              id="auth-password"
+              autoComplete={mode === 'signUp' ? 'new-password' : 'current-password'}
               type="password"
               required
-              minLength={6}
+              minLength={mode === 'signUp' ? 8 : undefined}
               className="w-full rounded-lg border border-plum-200 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          {info && <p className="text-sm text-sage-500">{info}</p>}
+          {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+          {info && <p role="status" className="text-sm text-sage-500">{info}</p>}
 
           <button
             type="submit"
             disabled={busy}
             className="w-full rounded-lg bg-blue-600 text-cream-50 py-2.5 font-medium hover:bg-blue-500 transition-colors disabled:opacity-50"
           >
-            {mode === 'signUp' ? 'Create account' : 'Sign in'}
+            {busy ? 'Please wait…' : mode === 'signUp' ? 'Create account' : 'Sign in'}
           </button>
         </form>
 
         <button
           className="mt-6 text-sm text-blue-600 underline underline-offset-2 hover:text-blue-500"
+          disabled={busy}
           onClick={() => {
             setMode(mode === 'signUp' ? 'signIn' : 'signUp')
             setError(null)
